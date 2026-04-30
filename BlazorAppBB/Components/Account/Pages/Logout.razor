@@ -1,0 +1,90 @@
+﻿@page "/Account/Logout"
+
+
+@using System
+@using System.IO
+@using System.Diagnostics
+@using Microsoft.AspNetCore.Hosting
+@inject IWebHostEnvironment Environment
+@inject IConfiguration config
+@inject ILogger<RunApp> Logger
+
+
+@inject AuthenticationStateProvider GetAuthenticationStateAsync
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Identity
+@using BlazorAppBB.Data
+@using BlazorAppBB.Components.Account
+@using BlazorAppBB.Components.Layout
+
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IdentityUserAccessor UserAccessor
+
+@using BlazorAppBB.Services
+@inject UserSettings userSettings
+
+
+<PageTitle>Logged out</PageTitle>
+
+<div class="my-background"> 
+<header>
+    <h1 class="text-danger">Logged out of account @userSettings.name</h1>
+    <p class="text-danger" role="alert">This account has been logged out. Thank you and goodbye.</p>
+</header>
+</div>
+
+
+@code {
+    private string? errorMessage;
+
+    private string? Corp = string.Empty;
+    private string? userName;
+    private ApplicationUser appUser = default!;
+    private string? AuthenticateduserName = null;
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        /*
+        var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
+        var user = authstate.User;
+        AuthenticateduserName = user.Identity!.Name;
+
+
+        if (HttpContext != null)
+        {
+            //this function get called twice, the second time with HttpContex set to null!
+            //so only accept the first pass
+
+            appUser = await UserAccessor.GetRequiredUserAsync(HttpContext);
+            userName = await UserManager.GetUserNameAsync(appUser);
+            var userID = await UserManager.GetUserIdAsync(appUser);  //.GetPhoneNumberAsync(appUser);
+            }
+        */
+
+    try
+        {
+            //delete the files....
+            if (userSettings.session_guid != Guid.Empty)
+            {
+                var newpath = Path.Combine(Environment.ContentRootPath, Environment.EnvironmentName, config.GetValue<string>("SafeFileStorage")!, userSettings.session_guid.ToString());
+                Directory.Delete(newpath, true);
+            }
+
+        }
+    catch (Exception ex)
+        {
+            Logger.LogError("File: Error: {ex.Message}");
+           // errors.Add($"Run File Error: {ex.Message}");
+        }
+
+         
+       
+       
+
+    }
+
+}

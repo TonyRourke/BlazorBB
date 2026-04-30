@@ -1,0 +1,179 @@
+﻿@page "/Account/RunApp"
+@rendermode InteractiveServer
+
+@using System
+@using System.IO
+@using System.Diagnostics
+@using System.Threading
+@using Microsoft.AspNetCore.Hosting
+@inject IWebHostEnvironment Environment
+@inject IConfiguration config
+@inject ILogger<RunApp> Logger
+
+
+@inject AuthenticationStateProvider GetAuthenticationStateAsync
+
+@using System.ComponentModel.DataAnnotations
+@using Microsoft.AspNetCore.Identity
+@using BlazorAppBB.Data
+@using BlazorAppBB.Components.Account
+@using BlazorAppBB.Components.Layout
+
+@inject UserManager<ApplicationUser> UserManager
+@inject SignInManager<ApplicationUser> SignInManager
+@inject IdentityUserAccessor UserAccessor
+
+@using BlazorAppBB.Services
+@inject UserSettings userSettings
+
+
+<PageTitle>Run My App</PageTitle>
+
+<div class="my-background">
+    <header>
+        <h1 class="text-danger">Run the app @userSettings.name</h1>
+        <p class="text-danger" role="alert">Thankyou.</p>
+        <button class="btn btn-primary" @onclick="RunMyApp">Run App</button>
+    </header>
+
+    @if (errors.Count > 0)
+    {
+        <h2>Errors</h2>
+        <ul class="text-danger">
+            @foreach (var error in errors)
+            {
+                <li>@error</li>
+            }
+        </ul>
+    }
+</div>
+
+
+@code {
+    private string? errorMessage;
+
+    private string? Corp = string.Empty;
+
+    private string? userName;
+    private string? AuthenticateduserName = null;
+    private ApplicationUser appUser = default!;
+    private string? userID;
+    private List<string> errors = new();
+
+    [CascadingParameter]
+    private HttpContext HttpContext { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authstate = await GetAuthenticationStateAsync.GetAuthenticationStateAsync();
+        var user = authstate.User;
+        AuthenticateduserName = user.Identity!.Name;
+
+
+        if (HttpContext != null)
+        {
+            //this function get called twice, the second time with HttpContex set to null!
+            //so only accept the first pass
+
+            appUser = await UserAccessor.GetRequiredUserAsync(HttpContext);
+            userName = await UserManager.GetUserNameAsync(appUser);
+            var userID = await UserManager.GetUserIdAsync(appUser);  //.GetPhoneNumberAsync(appUser);
+        }
+    }
+
+    private static Process RunTheAppProc(string inputString)
+    {
+
+        ProcessStartInfo startInfo = new ProcessStartInfo();
+        startInfo.FileName = "D:\\Projects\\Excel2\\Excel2\\bin\\Release\\net9.0\\Excel2.exe";
+        startInfo.Arguments = inputString;
+        startInfo.CreateNoWindow = false;
+        startInfo.UseShellExecute = false;
+
+        //run the application the server at D:\Projects\Excel2\Excel2\bin\Release\net9.0\Excel2.exe
+        Process proc = Process.Start(startInfo);
+
+        return proc;
+    }
+
+    private void RunMyApp()
+    {
+        RunTheApp();
+    }
+    private async void RunTheApp()
+    {
+        //TODO  : check the user safe_folder input folder for a TRUSTED file with the .xlsx file extension
+        //if one exists, run it through the app and put the out file in the user safe_folder output folder
+        if (AuthenticateduserName == null)
+        {
+            Logger.LogError("Unauthenticated user {userName}", userName);
+            errors.Add($"You do not have permission to use this service");
+            return;
+        }
+
+        errors.Clear();
+
+        try
+        {
+            if (true)
+            {
+
+                var newpath = Path.Combine(Environment.ContentRootPath, Environment.EnvironmentName, config.GetValue<string>("SafeFileStorage")!, userSettings.session_guid.ToString());
+                // var path = Path.Combine(Environment.ContentRootPath, Environment.EnvironmentName, config.GetValue<string>("UnsafeFileStorage")!, userSettings.session_guid.ToString(), file.truestedName);
+
+                try
+                {
+                    //check the folder for files with .xlsx
+                    if (Directory.GetFiles(newpath, "*.xlsx").Length == 0)
+                    {
+                        Logger.LogError("user {userName}", userName);
+                        errors.Add($"No files to process");
+                        return;
+                    }
+                }
+                catch(Exception ex)
+                {
+                    Logger.LogError("Folder not found {userName}", userName);
+                    errors.Add($"Folder: {newpath} Error: {ex.Message}");
+                }
+
+                userSettings.download_filename = Path.ChangeExtension(Path.GetRandomFileName(), Path.GetExtension(userSettings.trusted_name));
+
+                string file1 = newpath + "\\" + userSettings.trusted_name;
+                string file2 = newpath + "\\" + userSettings.download_filename;
+                string inputString = file1 + " " + file2;
+
+                Process proc = RunTheAppProc(inputString);
+                
+                if (proc!.Id > 0)
+                {
+                    errors.Add($"Process: Excel2 is runnning");
+                }
+                else
+                {
+                    errors.Add($"Process: Excel2 is NOT runnning");
+
+                }
+
+                await InvokeAsync(StateHasChanged); // Update UI
+
+                // Optionally wait for the process to exit
+                if (proc != null)
+                {
+                    proc.WaitForExit();
+                    errors.Add($"Process: Excel2 has stopped runnning");
+                }
+
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("File: Error: {ex.Message}");
+            errors.Add($"Run File Error: {ex.Message}");
+        }
+
+    }
+
+    
+
+}

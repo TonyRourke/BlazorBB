@@ -1,0 +1,99 @@
+﻿@page "/FileDownload"
+
+@* For Files <= 250 MB*@
+
+@* 
+Security considerations
+Use caution when providing users with the ability to download files from a server.
+Cyberattackers may execute Denial of Service (DoS) attacks, API exploitation attacks,
+or attempt to compromise networks and servers in other ways.
+
+Security steps that reduce the likelihood of a successful attack are:
+
+Download files from a dedicated file download area on the server, preferably from a non-system drive. 
+Using a dedicated location makes it easier to impose security restrictions on downloadable files. 
+Disable execute permissions on the file download area.
+Client-side security checks are easy to circumvent by malicious users. 
+Always perform client-side security checks on the server, too.
+Don't receive files from users or other untrusted sources and then make the files available for immediate
+download without performing security checks on the files.
+
+For more information, see Upload files in ASP.NET Core.
+*@
+
+@using System
+@using System.IO
+@using Microsoft.AspNetCore.Hosting
+@inject ILogger<FileDownload> Logger
+@inject IJSRuntime JS
+@inject IWebHostEnvironment Environment
+
+@rendermode InteractiveServer
+
+@using BlazorAppBB.Services
+@inject UserSettings userSettings
+@inject IConfiguration config
+
+
+<PageTitle>File Upload 1</PageTitle>
+
+<div class="my-background">
+
+<h1>File Upload Example 1</h1>
+
+<h3>FileDownload</h3>
+
+<button @onclick="DownloadFileFromStream">
+    Download your file
+</button>
+
+@if (errors.Count > 0)
+{
+    <h2>Errors</h2>
+    <ul class="text-danger">
+        @foreach (var error in errors)
+        {
+            <li>@error</li>
+        }
+    </ul>
+}
+</div>
+
+@code {
+    private List<IBrowserFile> loadedFiles = [];
+    private long maxFileSize = 1024 * 1024;     //1 MByte limit
+    private int maxAllowedFiles = 3;
+    private bool isLoading;
+    private string fileName = "";
+
+    private List<string> errors = new();
+
+    private Stream GetFileStream()
+    {
+        try
+        {
+            var trustedFileName = userSettings.download_filename; 
+            var fileFullPathName = Path.Combine(Environment.ContentRootPath, Environment.EnvironmentName, config.GetValue<string>("SafeFileStorage")!, userSettings.session_guid.ToString(), trustedFileName);
+            fileName = trustedFileName;
+            FileStream fs = new(fileFullPathName, FileMode.Open);
+
+            return fs;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError("File: Error: {ex.Message}");
+            errors.Add($"File Error: {ex.Message}");
+            return Stream.Null;
+        }
+    }
+
+    private async Task DownloadFileFromStream()
+    {
+        
+        var fileStream = GetFileStream();
+        
+        using var streamRef = new DotNetStreamReference(stream: fileStream);
+
+        await JS.InvokeVoidAsync("downloadFileFromStream", fileName, streamRef);
+    }
+}

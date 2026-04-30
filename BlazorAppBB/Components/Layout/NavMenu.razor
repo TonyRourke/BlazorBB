@@ -1,0 +1,153 @@
+﻿@using BlazorAppBB.Components.Account.Pages
+@using BlazorAppBB.Components.Pages
+@using BlazorAppBB.Services
+
+@implements IDisposable
+
+@inject NavigationManager NavigationManager
+@inject Capabilities capabilities
+
+
+<div class="top-row ps-3 navbar navbar-dark">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="">Colbeck Brighton</a>
+    </div>
+</div>
+
+<input type="checkbox" title="Navigation menu" class="navbar-toggler" />
+
+<div class="nav-scrollable" onclick="document.querySelector('.navbar-toggler').click()">
+    <nav class="nav flex-column">
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Home
+            </NavLink>
+        </div>
+
+        <div class="nav-item px-3">
+            <NavLink class="nav-link" href="auth">
+                <span class="bi bi-lock-nav-menu" aria-hidden="true"></span> Auth Required
+            </NavLink>
+        </div>
+
+        <AuthorizeView>
+            <Authorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="Account/Manage">
+                        <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> @context.User.Identity?.Name
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <form action="Account/Logout" method="post">
+                        <AntiforgeryToken />
+                        <input type="hidden" name="ReturnUrl" value="Account/Logout" />  <!--Go to the home page when logging out-->
+                        <button type="submit" class="nav-link">
+                            <span class="bi bi-arrow-bar-left-nav-menu" aria-hidden="true"></span> Logout
+                        </button>
+                    </form>
+                </div>
+
+                <div class="nav-item px-3">
+                    @if (isCounterEnabled)
+                    {
+                        <NavLink class="nav-link" href="counter">
+                            <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Counter
+                        </NavLink>
+                    }
+                </div>
+
+                <div class="nav-item px-3">
+                    @if (isWeatherEnabled)
+                    {
+                        <NavLink class="nav-link" href="weather">
+                            <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Weather
+                        </NavLink>
+                    }
+                </div>
+                <div class="nav-item px-3">
+                    @if (isCounterEnabled)
+                    {
+                        <NavLink class="nav-link" href="upload">
+                            <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Upload File
+                        </NavLink>
+                    }
+                </div>
+                <div class="nav-item px-3">
+                    @if (isCounterEnabled)
+                    {
+                        <NavLink class="nav-link" href="FileUpload">
+                            <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> File Upload
+                        </NavLink>
+                    }
+                </div>
+                <div class="nav-item px-3">
+                    @if (isCounterEnabled)
+                    {
+                        <NavLink class="nav-link" href="FileDownload">
+                            <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> File Download
+                        </NavLink>
+                    }
+                </div>
+                <div class="nav-item px-3">
+                    @if (isCounterEnabled)
+                    {
+                        <NavLink class="nav-link" href="Account/RunApp">
+                            <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Run App
+                        </NavLink>
+                    }
+                </div>
+
+
+            </Authorized>
+            <NotAuthorized>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="Account/Register">
+                        <span class="bi bi-person-nav-menu" aria-hidden="true"></span> Register
+                    </NavLink>
+                </div>
+                <div class="nav-item px-3">
+                    <NavLink class="nav-link" href="Account/Login">
+                        <span class="bi bi-person-badge-nav-menu" aria-hidden="true"></span> Login
+                    </NavLink>
+                </div>
+            </NotAuthorized>
+        </AuthorizeView>
+
+
+
+
+    </nav>
+</div>
+
+
+@code {
+    private string? currentUrl;
+
+    private bool isWeatherEnabled = false;
+    private bool isCounterEnabled = false;
+
+
+    protected override void OnInitialized() 
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        NavigationManager.LocationChanged += OnLocationChanged;
+
+        //only show the pages for the capabilities enabled
+        isWeatherEnabled = capabilities.W;
+        isCounterEnabled = capabilities.C;
+
+    }
+
+  
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e)
+    {
+        currentUrl = NavigationManager.ToBaseRelativePath(e.Location);
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        NavigationManager.LocationChanged -= OnLocationChanged;
+    }
+}
+

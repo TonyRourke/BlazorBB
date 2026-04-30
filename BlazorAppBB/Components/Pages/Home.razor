@@ -1,0 +1,18 @@
+﻿@page "/"
+
+@inherits LayoutComponentBase
+
+
+@using BlazorAppBB.Services
+@using Microsoft.Extensions.Options
+
+@inject IOptions<CorporationSettings> Corporation
+
+
+<PageTitle>Home</PageTitle>
+
+<div class="my-background"> 
+    <div class="my-class"><h1 class="myhead1">@Corporation.Value.CorpName</h1></div>
+    <div class="my-class"><h2 class="myhead2">Welcome to your new web page.</h2></div>
+    <div class="my_head2" style="position:relative; top:70%;left:600px">NEW TEXT HERE</div>
+</div>
