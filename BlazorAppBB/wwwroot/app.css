@@ -151,3 +151,18 @@ body {
 .dropzone-drag {
     background-color: palegreen;
 }
+
+.flex-form-container {
+    display: flex;
+    flex-direction:column;
+}
+.flex-row {
+    display:flex;
+    justify-content: space-between;
+}
+input {
+    flex: 1;
+    margin: 5px;
+    padding: 10px;
+    box-sizing:border-box;
+}
