@@ -1,0 +1,86 @@
+﻿@page "/monkeys/create"
+@using Microsoft.EntityFrameworkCore
+@using BlazorAppBB.Models
+@using BlazorAppBB.Data
+@*<inject IDbContextFactory<Monkey1.Data.Monkey1Context> DbFactory *@
+@inject NavigationManager NavigationManager
+
+<div class="my-background">
+
+<PageTitle>Create</PageTitle>
+
+<h1>Create</h1>
+
+<h2>Input Finance Data</h2>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <EditForm method="post" Model="IDM" OnValidSubmit="AddData" FormName="create" Enhance>
+            <DataAnnotationsValidator />
+            <ValidationSummary class="text-danger" role="alert" />
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Id:</label>
+                <InputNumber id="name" @bind-Value="IDM.Id" class="form-control" />
+                <ValidationMessage For="() => IDM.Id" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="name" class="form-label">DateCreated:</label>
+                <InputDate id="name" @bind-Value="IDM.sMonth" class="form-control" />
+                <ValidationMessage For="() => IDM.sMonth" class="text-danger" />
+            </div>
+
+            <div class="mb-3">
+                <label for="name" class="form-label">Name:</label>
+                <InputText id="name" @bind-Value="IDM.sName" class="form-control" />
+                <ValidationMessage For="() => IDM.sName" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="description" class="form-label">dData1:</label>
+                <InputNumber id="description" @bind-Value="IDM.dData1" class="form-control" />
+                <ValidationMessage For="() => IDM.dData1" class="text-danger" />
+            </div>
+            <div class="mb-3">
+                <label for="age" class="form-label">dData2:</label>
+                <InputNumber id="age" @bind-Value="IDM.dData2" class="form-control" />
+                <ValidationMessage For="() => IDM.dData2" class="text-danger" />
+            </div>
+
+            <div class="mb-3">
+                <label for="age" class="form-label">dData3:</label>
+                <InputNumber id="age" @bind-Value="IDM.dData3" class="form-control" />
+                <ValidationMessage For="() => IDM.dData3" class="text-danger" />
+            </div>
+            <button type="submit" class="btn btn-primary">Create</button>
+        </EditForm>
+    </div>
+</div>
+
+<div>
+    <a href="/monkeys">Back to List</a>
+</div>
+
+</div>
+
+@code {
+    [SupplyParameterFromForm]
+    private InputDataModel IDM { get; set; } = new();
+
+    // To protect from overposting attacks, see https://learn.microsoft.com/aspnet/core/blazor/forms/#mitigate-overposting-attacks.
+    private async Task AddData()
+    {
+        /*
+        using var context = DbFactory.CreateDbContext();
+        context.Monkey.Add(Monkey);
+        await context.SaveChangesAsync();
+        NavigationManager.NavigateTo("/monkeys");
+        */
+
+        var dataService = new FileDataService();
+        var idm = await dataService.GetDataAsync();
+        idm.Add(IDM);
+        await dataService.SetDataAsync(idm);
+        NavigationManager.NavigateTo("/monkeys");
+
+    }
+}

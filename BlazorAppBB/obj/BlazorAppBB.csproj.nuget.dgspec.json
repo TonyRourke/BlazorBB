@@ -60,9 +60,13 @@
               "target": "Package",
               "version": "[4.16.0, )"
             },
+            "Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter": {
+              "target": "Package",
+              "version": "[9.0.12, )"
+            },
             "Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore": {
               "target": "Package",
-              "version": "[9.0.11, )"
+              "version": "[9.0.12, )"
             },
             "Microsoft.AspNetCore.Identity.EntityFrameworkCore": {
               "target": "Package",
@@ -70,15 +74,21 @@
             },
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
-              "version": "[9.0.11, )"
+              "version": "[9.0.12, )"
             },
             "Microsoft.EntityFrameworkCore.Tools": {
+              "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
+              "suppressParent": "All",
               "target": "Package",
-              "version": "[9.0.11, )"
+              "version": "[9.0.12, )"
             },
             "Microsoft.Extensions.Configuration.UserSecrets": {
               "target": "Package",
               "version": "[10.0.2, )"
+            },
+            "Microsoft.VisualStudio.Web.CodeGeneration.Design": {
+              "target": "Package",
+              "version": "[9.0.12, )"
             }
           },
           "imports": [

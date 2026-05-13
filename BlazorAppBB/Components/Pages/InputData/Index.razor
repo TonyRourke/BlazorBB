@@ -1,0 +1,71 @@
+﻿@page "/monkeys"
+@using Microsoft.EntityFrameworkCore
+@using Microsoft.AspNetCore.Components.QuickGrid
+@using BlazorAppBB.Models
+@using BlazorAppBB.Data
+@*@implements IAsyncDisposable*@
+@* @inject IDbContextFactory<Monkey1.Data.Monkey1Context> DbFactory *@
+
+<div class="my-background">
+
+<PageTitle>Index</PageTitle>
+
+<h1>Index</h1>
+
+<p>
+    <a href="monkeys/create">Create New</a>
+</p>
+
+<QuickGrid Class="table" Items="@myIDM">
+    <PropertyColumn Property="@(myIDM => myIDM.Id)" Sortable="true" />
+    <PropertyColumn Property="@(myIDM => myIDM.sMonth)" Sortable="true" />
+    <PropertyColumn Property="@(myIDM => myIDM.sName)" />
+    <PropertyColumn Property="@(myIDM => myIDM.dData1)" />
+    <PropertyColumn Property="@(myIDM => myIDM.dData2)" />
+    <PropertyColumn Property="@(myIDM => myIDM.dData3)" />
+
+
+    <TemplateColumn Context="_idms">
+        <a href="@($"monkeys/edit?id={@_idms.Id}")">Edit</a> |
+        <a href="@($"monkeys/details?id={@_idms.Id}")">Details</a> |
+        <a href="@($"monkeys/delete?id={@_idms.Id}")">Delete</a>
+    </TemplateColumn>
+</QuickGrid>
+</div>
+
+@code {
+    //private Monkey1Context context = default!;
+    private List<InputDataModel> _idms { get; set; }
+    public IQueryable<InputDataModel>? myIDM { get; set; }
+
+    protected override void OnInitialized()
+    {
+        FileDataService fds = new FileDataService();
+        /*
+                _apes = new List<Monkey>
+                {   new Monkey { Id = 1, DateCreated = DateOnly.FromDateTime(DateTime.Now), Name = "George", Age = 5, Description = "A curious monkey." },
+                    new Monkey { Id = 2, DateCreated = DateOnly.FromDateTime(DateTime.Now), Name = "Charlie", Age = 3, Description = "A playful monkey." },
+                    new Monkey { Id = 3, DateCreated = DateOnly.FromDateTime(DateTime.Now), Name = "Bella", Age = 4, Description = "A friendly monkey." }
+                };
+        */
+        try
+        {
+            _idms = fds.GetDataAsync().Result;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error fetching data: {ex.Message}");
+            _idms = new List<InputDataModel>(); // Fallback to an empty list
+        }
+
+        myIDM = _idms.AsQueryable();
+    }
+
+
+    // protected override void OnInitialized()
+    // {
+    //      context = DbFactory.CreateDbContext();
+    //  }
+
+    //public async ValueTask DisposeAsync() => await context.DisposeAsync();
+}

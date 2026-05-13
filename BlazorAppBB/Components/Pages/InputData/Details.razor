@@ -1,0 +1,74 @@
+﻿@page "/monkeys/details"
+@using Microsoft.EntityFrameworkCore
+@using BlazorAppBB.Models
+@using BlazorAppBB.Data
+@inject NavigationManager NavigationManager
+
+
+<div class="my-background">
+
+<PageTitle>Details</PageTitle>
+
+<h1>Details</h1>
+
+<div>
+    <h2>Data Details</h2>
+    <hr />
+    @if (idm is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <dl class="row">
+            <dt class="col-sm-2">Id</dt>
+            <dd class="col-sm-10">@idm.Id</dd>
+            <dt class="col-sm-2">Name</dt>
+            <dd class="col-sm-10">@idm.sName</dd>
+            <dt class="col-sm-2">Date</dt>
+            <dd class="col-sm-10">@idm.sMonth</dd>
+            <dt class="col-sm-2">dData1</dt>
+            <dd class="col-sm-10">@idm.dData1</dd>
+            <dt class="col-sm-2">dData2</dt>
+            <dd class="col-sm-10">@idm.dData2</dd>
+            <dt class="col-sm-2">dData3</dt>
+            <dd class="col-sm-10">@idm.dData3</dd>
+        </dl>
+        <div>
+            <a href="@($"/monkeys/edit?id={idm.Id}")">Edit</a> |
+            <a href="@($"/monkeys")">Back to List</a>
+        </div>
+    }
+</div>
+</div>
+
+@code {
+    private InputDataModel? idm;
+
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        /*
+        using var context = DbFactory.CreateDbContext();
+        monkey = await context.Monkey.FirstOrDefaultAsync(m => m.Id == Id);
+        */
+
+        var idm = await LoadData();
+
+        if (idm is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    private async Task<InputDataModel?> LoadData()
+    {
+        FileDataService fds = new FileDataService();
+        var idms = await fds.GetDataAsync();
+        idm = idms.FirstOrDefault(m => m.Id == Id);
+        
+        return idm;
+    }
+}
