@@ -1,0 +1,59 @@
+﻿::deep .col-title-text {
+    color: darkred;
+    font-size: large;
+    max-width: 200px;
+    word-wrap: break-word; /* Forces long words to break onto the next line */
+    overflow-wrap: break-word;
+    white-space: normal;
+}
+
+::deep table {
+    border: 2px solid black;
+    border-collapse: collapse;
+    color: black;
+    background-color: lightgray;
+}
+
+::deep th {
+    border: 1px solid black;
+}
+
+::deep tr {
+    border: 1px solid black;
+}
+
+::deep td {
+    border: 1px solid black;
+}
+
+.col-title > .col-title-text {
+    color: darkblue !important;
+    font-weight: normal !important;
+}
+
+.hover-scroll-x tr th {
+    color: blue;
+}
+
+.hover-scroll-y > thead > tr > th > .col-header-content > .col-title > .col-title-text {
+    color: green
+}
+
+.hover-scroll-y {
+    height: 300px;
+    width: 900px;
+    overflow: hidden;
+}
+
+    .hover-scroll-y:hover {
+        overflow-y: scroll;
+    }
+
+.hover-scroll-x {
+    width:auto;
+    overflow-x: hidden;
+}
+
+    .hover-scroll-x:hover {
+        overflow-x: scroll;
+    }

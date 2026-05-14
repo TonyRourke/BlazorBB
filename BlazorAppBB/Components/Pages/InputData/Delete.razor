@@ -1,5 +1,85 @@
-﻿<h3>Delete</h3>
+﻿page "/monkeys/delete"
+@using Microsoft.EntityFrameworkCore
+@using BlazorAppBB.Models
+@using BlazorAppBB.Data
+@inject NavigationManager NavigationManager
+
+<PageTitle>Delete</PageTitle>
+
+<h1>Delete</h1>
+
+<p>Are you sure you want to delete this?</p>
+<div>
+    <h2>Monkey</h2>
+    <hr />
+    @if (idm is null)
+    {
+        <p><em>Loading...</em></p>
+    }
+    else
+    {
+        <dl class="row">
+            <dt class="col-sm-2">Date</dt>
+            <dd class="col-sm-10">@idm.sMonth</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">Name</dt>
+            <dd class="col-sm-10">@idm.sName</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">dData1</dt>
+            <dd class="col-sm-10">@idm.dData1</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">dData2</dt>
+            <dd class="col-sm-10">@idm.dData2</dd>
+        </dl>
+        <dl class="row">
+            <dt class="col-sm-2">dData3</dt>
+            <dd class="col-sm-10">@idm.dData3</dd>
+        </dl>
+       
+        <EditForm method="post" Model="idm" OnValidSubmit="DeleteData" FormName="delete" Enhance>
+            <button type="submit" class="btn btn-danger" disabled="@(idm is null)">Delete</button> |
+            <a href="/monkeys">Back to List</a>
+        </EditForm>
+    }
+</div>
 
 @code {
+    private InputDataModel? idm;
 
+    [SupplyParameterFromQuery]
+    private int Id { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var monkey = await LoadData();
+
+        if (monkey is null)
+        {
+            NavigationManager.NavigateTo("notfound");
+        }
+    }
+
+    private async Task DeleteData()
+    {
+        FileDataService fds = new FileDataService();
+        var monkeys = await fds.GetDataAsync();
+        var monkeyToDelete = monkeys.FirstOrDefault(m => m.Id == Id);
+        monkeys.Remove(monkeyToDelete!);
+        await fds.SetDataAsync(monkeys);
+            
+        NavigationManager.NavigateTo("/monkeys");
+
+    }
+
+    private async Task<InputDataModel?> LoadData()
+    {
+        FileDataService fds = new FileDataService();
+        var idms = await fds.GetDataAsync();
+        idm = idms.FirstOrDefault(m => m.Id == Id);
+
+        return idm;
+    }
 }

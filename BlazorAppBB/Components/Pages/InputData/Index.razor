@@ -16,7 +16,8 @@
     <a href="monkeys/create">Create New</a>
 </p>
 
-<QuickGrid Class="table" Items="@myIDM">
+<div class="hover-scroll-x">
+    <QuickGrid Class="hover-scroll-y" Items="@myIDM">
     <PropertyColumn Property="@(myIDM => myIDM.Id)" Sortable="true" />
     <PropertyColumn Property="@(myIDM => myIDM.sMonth)" Sortable="true" />
     <PropertyColumn Property="@(myIDM => myIDM.sName)" />
@@ -31,6 +32,7 @@
         <a href="@($"monkeys/delete?id={@_idms.Id}")">Delete</a>
     </TemplateColumn>
 </QuickGrid>
+</div>
 </div>
 
 @code {
